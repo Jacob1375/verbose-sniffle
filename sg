@@ -1,0 +1,27 @@
+{
+#ifdef TEXTURETYPE_RGBA
+	vec4 texcol = texture2D( Texture0, texcoordgradientcoord.st );
+#elif defined(TEXTURETYPE_PREMUL)
+	vec4 texcol = texture2D( Texture0, texcoordgradientcoord.st );
+	texcol.rgb *= texcol.a;
+#elif defined(TEXTURETYPE_ALPHA)
+	vec4 texcol = texture2D( Texture0, texcoordgradientcoord.st ).a * vec4(1.0, 1.0, 1.0, 1.0);
+#elif defined(TEXTURETYPE_YUV)
+	// direct decoding of YV12 or I420 video
+	float y = texture2D( Texture0, texcoordgradientcoord.st ).r;
+	float u = texture2D( Texture1, texcoordgradientcoord.st ).r;
+	float v = texture2D( Texture2, texcoordgradientcoord.st ).r;
+
+	y = 1.1643*(y-0.0625);
+	u = u-0.5;
+	v = v-0.5;
+
+	vec4 texcol = vec4(y+1.5958*v, y-0.39173*u-0.81290*v, y+2.017*u, 1.0);
+#ifdef USEYUVSRGB
+	texcol.r = pow(texcol.r, 2.2);
+	texcol.g = pow(texcol.g, 2.2);
+	texcol.b = pow(texcol.b, 2.2);
+#endif
+#else
+	vec4 texcol = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
